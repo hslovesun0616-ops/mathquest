@@ -5,11 +5,11 @@ from math_quest_hideout import initialise_hideout
 
 root=Path(__file__).resolve().parent
 folder=root/'math_quest_review';folder.mkdir(exist_ok=True)
-files=['math_quest_server.py','math_quest_growth.py','math_quest_research.py','math_quest_adventure.py','math_quest_hideout.py','math_quest_mini_bank.py','math_quest_adventures.json','math_quest_admin.js','math_quest_research.js','math_quest_adventure.js','math_quest_hideout.js','math_quest_finish.js','math_quest_student_layout.py','math_quest_student_layout.js','math_quest_growth.css','build_research_app.py','math_quest_teacher_base.html','math_quest_app.updated.html']
+files=['math_quest_server.py','math_quest_growth.py','math_quest_research.py','math_quest_adventure.py','math_quest_hideout.py','math_quest_mini_bank.py','math_quest_adventures.json','math_quest_admin.js','math_quest_research.js','math_quest_adventure.js','math_quest_hideout.js','math_quest_finish.js','math_quest_student_layout.py','math_quest_student_layout.js','math_quest_growth.css','build_research_app.py','math_quest_teacher_base.html','math_quest_app.updated.html','math_quest_cloud.py','api/index.py','supabase/mathquest_schema.sql','vercel.json','requirements.txt','CLOUD_SETUP.md','provision_cloud.py','migrate_to_supabase.py','deploy_vercel.py','vercel_cli_compat.cjs','verify_cloud_live.py']
 for name in files:
     text=(root/name).read_text(encoding='utf-8')
     if name.endswith('.html'):text=re.sub(r'    let students = \[\s*\n.*?\n    \];','    let students = [];',text,count=1,flags=re.S)
-    (folder/name).write_text(text,encoding='utf-8')
+    destination=folder/name;destination.parent.mkdir(parents=True,exist_ok=True);destination.write_text(text,encoding='utf-8')
 seed=json.loads((root/'math_quest_seed.json').read_text(encoding='utf-8'))
 for i,student in enumerate(seed['students'],1):
     student['name']=f'검토학생{i}';student['teacher']='검토용 교사';student['history']='가상 검토용 학생 기록';student['qualitativeNotes']=''
@@ -53,6 +53,6 @@ Python 3에서 `python math_quest_server.py --port 8877 --data-dir review_data`�
 ''',encoding='utf-8')
 archive=root/'MathQuest_수정보완_검토용.zip'
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
-    for file in folder.iterdir():
-        if file.is_file():z.write(file,'MathQuest_검토용/'+file.name)
+    for file in folder.rglob('*'):
+        if file.is_file() and '__pycache__' not in file.parts:z.write(file,'MathQuest_검토용/'+file.relative_to(folder).as_posix())
 print('Review ZIP and 640-question CSV created without classroom database or credentials.')

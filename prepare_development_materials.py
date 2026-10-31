@@ -16,11 +16,12 @@ for cache in src.rglob('__pycache__'):
     if not any(cache.iterdir()):cache.rmdir()
 seed=json.loads((root/'math_quest_seed.json').read_text(encoding='utf-8'))
 mapping={student['name']:f'검토학생{i}' for i,student in enumerate(seed['students'],1)}
-for file in (root/'math_quest_review').iterdir():
+for file in (root/'math_quest_review').rglob('*'):
     if not file.is_file():continue
     if file.suffix=='.csv' or file.name=='math_quest_minis.json':shutil.copy2(file,questions/file.name)
-    else:shutil.copy2(file,src/file.name)
-extras=['README.md','MATH_QUEST_RUN.md','make_adventure_content.py','.gitignore','test_math_quest_server.py','test_math_quest_research.py','test_math_quest_adventure.py','test_math_quest_hideout.py','test_math_quest_complete.py','verify_student_layout.cjs','verify_mini_grades.cjs','verify_adventure_map.cjs','verify_research_analysis.cjs','verify_passport_history.cjs']
+    else:
+        destination=src/file.relative_to(root/'math_quest_review');destination.parent.mkdir(parents=True,exist_ok=True);shutil.copy2(file,destination)
+extras=['README.md','MATH_QUEST_RUN.md','make_adventure_content.py','.gitignore','test_math_quest_server.py','test_math_quest_research.py','test_math_quest_adventure.py','test_math_quest_hideout.py','test_math_quest_complete.py','test_math_quest_cloud.py','verify_student_layout.cjs','verify_mini_grades.cjs','verify_adventure_map.cjs','verify_research_analysis.cjs','verify_passport_history.cjs']
 for name in extras:
     text=(root/name).read_text(encoding='utf-8')
     for old,new in mapping.items():text=text.replace(old,new)
@@ -93,7 +94,7 @@ Python ThreadingHTTPServer + SQLite, HTML/JavaScript입니다. 별도 DB 서버�
 - 기록을 삭제하지 않는 진급 취소
 - 외부 AI 검토용 가상 데이터 사본과 Git의 운영 데이터 제외 규칙
 ''',encoding='utf-8')
-commands=[['python','-m','unittest','test_math_quest_complete','test_math_quest_hideout','test_math_quest_adventure','test_math_quest_research','test_math_quest_server']]+[['node',name] for name in ['verify_student_layout.cjs','verify_mini_grades.cjs','verify_adventure_map.cjs','verify_research_analysis.cjs','verify_passport_history.cjs']]
+commands=[['python','-m','unittest','test_math_quest_cloud','test_math_quest_complete','test_math_quest_hideout','test_math_quest_adventure','test_math_quest_research','test_math_quest_server']]+[['node',name] for name in ['verify_student_layout.cjs','verify_mini_grades.cjs','verify_adventure_map.cjs','verify_research_analysis.cjs','verify_passport_history.cjs']]
 results=[]
 for command in commands:
     run=subprocess.run(command,cwd=src,capture_output=True,text=True,encoding='utf-8',errors='replace',env={**os.environ,'PYTHONDONTWRITEBYTECODE':'1'})

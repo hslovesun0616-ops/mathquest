@@ -4,6 +4,8 @@ Python 표준 라이브러리와 HTML/JavaScript로 구성한 학생·교사 학
 
 공개 소스: https://github.com/hslovesun0616-ops/mathquest
 
+온라인 운영: https://mathquest-six-ashen.vercel.app — Vercel + Supabase 구성은 `CLOUD_SETUP.md`를 참고하세요. 온라인과 로컬 DB는 자동 동기화되지 않습니다.
+
 ## 실행
 
 `python math_quest_server.py --port 8765`

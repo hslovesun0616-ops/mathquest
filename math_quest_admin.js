@@ -4,6 +4,7 @@ let teacherMode = false;
 let serverReady = false;
 let remoteVersion = 0;
 let teacherConfigured = false;
+let directFileUpload = false;
 let copyOverrides = {};
 let copyCatalog = {};
 let copyDrafts = {};
@@ -205,8 +206,10 @@ async function submitAssignment(event,form) {
   if(!SERVER_MODE){alert('수업 앱 주소에서 로그인한 후 제출해 주세요.');return;}
   button.disabled=true;
   try {
-    const attachment=file?await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve({name:file.name,type:file.type,data:String(reader.result).split(',')[1]});reader.onerror=()=>reject(new Error('파일을 읽지 못했습니다.'));reader.readAsDataURL(file);}):null;
-    applyRemote(await api('/api/submit',{assignmentId:form.dataset.taskId,content:form.elements.content.value,file:attachment}));
+    let uploadedFileId=null;
+    if(file&&directFileUpload){const prepared=await api('/api/files/prepare',{name:file.name,type:file.type,size:file.size});const uploaded=await fetch(prepared.uploadUrl,{method:'PUT',body:file,headers:{'Content-Type':file.type||'application/octet-stream'}});if(!uploaded.ok)throw new Error('첨부파일 업로드를 완료하지 못했습니다. 다시 시도해 주세요.');uploadedFileId=prepared.fileId;}
+    const attachment=file&&!directFileUpload?await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve({name:file.name,type:file.type,data:String(reader.result).split(',')[1]});reader.onerror=()=>reject(new Error('파일을 읽지 못했습니다.'));reader.readAsDataURL(file);}):null;
+    applyRemote(await api('/api/submit',{assignmentId:form.dataset.taskId,content:form.elements.content.value,file:attachment,uploadedFileId}));
     renderStudentView();alert('과제를 제출했습니다. 선생님이 확인하면 나의 성취율에 반영됩니다.');
   }catch(error){alert(error.message);}finally{button.disabled=false;}
 }
@@ -333,7 +336,7 @@ window.onload=async function() {
   applyStudentCopy();
   if(SERVER_MODE){
     try {
-      const status=await api('/api/public');teacherConfigured=status.teacherConfigured;
+      const status=await api('/api/public');teacherConfigured=status.teacherConfigured;directFileUpload=status.directUpload===true;
       copyOverrides=status.copyOverrides||{};copyCatalog={...copyCatalog,...status.copyCatalog};serverReady=true;
       showLogin();
       try {

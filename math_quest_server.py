@@ -36,6 +36,7 @@ class AppServer(ThreadingHTTPServer):
                 CREATE TABLE IF NOT EXISTS sessions (token TEXT PRIMARY KEY, role TEXT NOT NULL, student_uuid TEXT, expires REAL NOT NULL);
                 CREATE TABLE IF NOT EXISTS files (id TEXT PRIMARY KEY, student_uuid TEXT NOT NULL, name TEXT NOT NULL, mime TEXT NOT NULL, body BLOB NOT NULL);
             ''')
+            if 'storage_path' not in [r['name'] for r in db.execute('PRAGMA table_info(files)')]:db.execute('ALTER TABLE files ADD COLUMN storage_path TEXT')
             db.execute('INSERT OR IGNORE INTO state VALUES (1,?,1)', (json.dumps(seed, ensure_ascii=False),))
             row = db.execute('SELECT body,version FROM state WHERE id=1').fetchone()
             state = json.loads(row['body'])
@@ -101,7 +102,8 @@ class Handler(BaseHTTPRequestHandler):
         db.execute('DELETE FROM sessions WHERE expires<?', (time.time(),))
         db.execute('INSERT INTO sessions VALUES (?,?,?,?)',
                    (hashlib.sha256(token.encode()).hexdigest(), role, student_uuid, time.time() + 14400))
-        return {'Set-Cookie': f'mq_session_{self.server.server_port}={token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=14400'}
+        secure='; Secure' if getattr(self.server,'is_cloud',False) else ''
+        return {'Set-Cookie': f'mq_session_{self.server.server_port}={token}; Path=/; HttpOnly; SameSite=Strict; Max-Age=14400{secure}'}
 
     @staticmethod
     def state(db):
@@ -154,7 +156,7 @@ class Handler(BaseHTTPRequestHandler):
             state, version = self.state(db)
             if path == '/api/public':
                 configured = bool(db.execute("SELECT 1 FROM config WHERE key='teacher'").fetchone())
-                return self.reply(200, {'teacherConfigured': configured, 'copyOverrides': state.get('copyOverrides', {}), 'copyCatalog': state.get('copyCatalog', {})})
+                return self.reply(200, {'teacherConfigured': configured, 'directUpload':getattr(self.server,'is_cloud',False), 'copyOverrides': state.get('copyOverrides', {}), 'copyCatalog': state.get('copyCatalog', {})})
             session = self.session(db)
             if not session:
                 return self.reply(401, {'error': '로그인이 필요합니다.'})
@@ -179,6 +181,8 @@ class Handler(BaseHTTPRequestHandler):
                 row = db.execute('SELECT * FROM files WHERE id=?', (path.rsplit('/', 1)[-1],)).fetchone()
                 if not row or (session['role'] != 'teacher' and row['student_uuid'] != session['student_uuid']):
                     return self.reply(404, {'error': '첨부파일을 찾을 수 없습니다.'})
+                if row['storage_path'] and getattr(self.server,'is_cloud',False):
+                    self.send_response(302);self.send_header('Location',self.server.storage.download(row));self.send_header('Cache-Control','no-store');self.end_headers();return
                 self.send_response(200)
                 self.send_header('Content-Type', 'application/octet-stream')
                 self.send_header('Content-Disposition', "attachment; filename*=UTF-8''" + quote(row['name'], safe=''))
@@ -193,7 +197,8 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self):
         # All mutations require same-origin requests. This also rejects file:// writes.
         origin = self.headers.get('Origin', '')
-        if origin != 'http://' + self.headers.get('Host', ''):
+        scheme='https://' if getattr(self.server,'is_cloud',False) else 'http://'
+        if origin != scheme + self.headers.get('Host', ''):
             return self.reply(403, {'error': '앱을 연 주소에서 다시 시도해 주세요.'})
         try:
             length = int(self.headers.get('Content-Length', '0'))
@@ -209,10 +214,15 @@ class Handler(BaseHTTPRequestHandler):
             with self.server.connect() as db:
                 db.execute('BEGIN IMMEDIATE')
                 state, version = self.state(db)
+                login_key=None
+                if getattr(self.server,'is_cloud',False) and path in ('/api/teacher/login','/api/student/login'):
+                    login_key=self.server.allow_login(db,path,str(body.get('studentId','')).strip(),self.headers.get('x-forwarded-for','').split(',')[0].strip())
+                    if not login_key:return self.reply(429,{'error':'로그인 시도가 많습니다. 10분 뒤 다시 시도해 주세요.'})
                 if path in ['/api/teacher/setup', '/api/teacher/login']:
                     existing = db.execute("SELECT value FROM config WHERE key='teacher'").fetchone()
                     password = str(body.get('password', ''))
                     if path.endswith('/setup'):
+                        if getattr(self.server,'is_cloud',False):return self.reply(403,{'error':'배포 서버의 교사 계정은 관리자가 미리 구성해야 합니다.'})
                         if existing:
                             return self.reply(409, {'error': '교사 계정이 이미 설정되어 있습니다. 로그인해 주세요.'})
                         if len(password) < 8:
@@ -228,11 +238,13 @@ class Handler(BaseHTTPRequestHandler):
                         if not hmac.compare_digest(digest, stored['hash']):
                             return self.reply(401, {'error': '교사 비밀번호가 일치하지 않습니다.'})
                     headers = self.login_cookie(db, 'teacher')
+                    if login_key:db.execute('DELETE FROM auth_attempts WHERE key=?',(login_key,))
                     return self.reply(200, {'ok': True}, headers)
                 if path == '/api/student/login':
                     student = next((s for s in state['students'] if s['studentId'] == str(body.get('studentId', '')).strip() and s['name'] == str(body.get('name', '')).strip()), None)
                     if not student:
                         return self.reply(401, {'error': '학번 또는 이름이 일치하지 않습니다.'})
+                    if login_key:db.execute('DELETE FROM auth_attempts WHERE key=?',(login_key,))
                     return self.reply(200, {'ok': True}, self.login_cookie(db, 'student', student['uuid']))
                 session = self.session(db)
                 if not session:
@@ -240,6 +252,9 @@ class Handler(BaseHTTPRequestHandler):
                 if path == '/api/logout':
                     db.execute('DELETE FROM sessions WHERE token=?', (session['token'],))
                     return self.reply(200, {'ok': True}, {'Set-Cookie': f'mq_session_{self.server.server_port}=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0'})
+                if path=='/api/files/prepare':
+                    if session['role']!='student' or not getattr(self.server,'is_cloud',False):return self.reply(403,{'error':'학생 계정에서 이용해 주세요.'})
+                    return self.reply(200,self.server.storage.prepare(db,session['student_uuid'],body))
                 if path=='/api/teacher/grade':
                     if session['role']!='teacher':return self.reply(403,{'error':'교사만 변경할 수 있습니다.'})
                     if body.get('version')!=version:return self.reply(409,{'error':'최신 기록을 불러온 뒤 다시 시도해 주세요.'})
@@ -314,13 +329,14 @@ class Handler(BaseHTTPRequestHandler):
                     attachment = body.get('file')
                     file_id = previous.get('fileId') if previous else None
                     file_name = previous.get('fileName', '첨부 없음') if previous else '첨부 없음'
+                    if body.get('uploadedFileId') and getattr(self.server,'is_cloud',False):file_id,file_name=self.server.storage.complete(db,student['uuid'],body['uploadedFileId'])
                     if attachment:
                         data = base64.b64decode(attachment.get('data', ''), validate=True)
                         if len(data) > MAX_FILE:
                             return self.reply(413, {'error': '첨부파일은 10MB까지 제출할 수 있습니다.'})
                         file_name = str(attachment.get('name', '첨부파일')).replace('\\', '/').rsplit('/', 1)[-1][:200]
                         file_id = secrets.token_urlsafe(24)
-                        db.execute('INSERT INTO files VALUES (?,?,?,?,?)', (file_id, student['uuid'], file_name, str(attachment.get('type', 'application/octet-stream')), data))
+                        db.execute('INSERT INTO files(id,student_uuid,name,mime,body) VALUES (?,?,?,?,?)', (file_id, student['uuid'], file_name, str(attachment.get('type', 'application/octet-stream')), data))
                     if not content and not file_id:
                         return self.reply(400, {'error': '과제 내용이나 첨부파일을 추가해 주세요.'})
                     prev = previous or {}
