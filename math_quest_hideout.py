@@ -45,6 +45,30 @@ def initialise_hideout(state):
         state['miniContent'].extend(m for m in authored_minis(TOPICS) if m['id'] not in existing)
         state['miniLibraryVersion']=1
     validate_minis(state['miniContent'])
+    upgrade_review_content(state)
+
+def upgrade_review_content(state):
+    """Upgrade only exact stock lessons; retain teacher edits and student progress."""
+    from math_quest_mini_bank import authored_minis, PREVIOUS_MINI_VERSIONS
+    replacements={m['id']:m for m in authored_minis(TOPICS)}
+    validate_minis(list(replacements.values()))
+    changed=[]
+    for index,mini in enumerate(state.get('miniContent',[])):
+        id=mini.get('id');old_version=version(mini)
+        if old_version!=PREVIOUS_MINI_VERSIONS.get(id):continue
+        replacement=replacements[id]
+        if replacement['version']==old_version:continue
+        state['miniContent'][index]=copy.deepcopy(replacement)
+        for student in state.get('students',[]):
+            for record in student.get('gradeRecords',{}).values():
+                progress=record.get('miniAdventures',{}).get(id)
+                if progress and progress.get('version')==old_version:
+                    progress.setdefault('history',[]).append(copy.deepcopy({k:v for k,v in progress.items() if k!='history'}))
+                    # Reviewed changes clarify hints/wording or an equivalent option question.
+                    # Question IDs and mathematical answers keep their original meaning.
+                    progress['version']=replacement['version']
+        changed.append(id)
+    return changed
 
 def validate_minis(content):
     if not isinstance(content,list) or any(not isinstance(m,dict) for m in content) or len({m.get('id') for m in content})!=len(content):raise ValueError('작은 탐험 ID를 확인해 주세요.')
@@ -71,7 +95,7 @@ def mini_catalog(state):
 def earned_badges(student):
     badges=[]
     for grade,record in student.get('gradeRecords',{}).items():
-        if str(grade)!='1':continue
+        if str(grade) not in ('1','2','3'):continue
         badges += [f'big:{grade}:{id}' for id in record.get('clearedStages',[]) if type(id) is int and 1<=id<=10]
         badges += [f'mini:{grade}:{id}' for id in record.get('miniBadges',[]) if id in {f'{u}-{i}' for u,topics in enumerate(TOPICS,1) for i in range(1,len(topics)+1)}]
     return sorted(set(badges))

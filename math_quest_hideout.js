@@ -41,8 +41,13 @@ function badgeArt(id,size=72,locked=false){
   return `<svg aria-hidden="true" viewBox="0 0 100 102" width="${size}" height="${size}" class="shrink-0">${shape}${art}</svg>`;
 }
 function ownedBadges(student){
-  const record=student.gradeRecords?.[1]||{};
-  return [...new Set([...(record.clearedStages||[]).filter(id=>id>=1&&id<=10).map(id=>'big:1:'+id),...(record.miniBadges||[]).map(id=>'mini:1:'+id)])];
+  const badges=[],validMinis=new Set(miniCatalog.map(m=>m.id));
+  Object.entries(student.gradeRecords||{}).forEach(([grade,record])=>{
+    if(!['1','2','3'].includes(grade))return;
+    (record.clearedStages||[]).filter(id=>Number.isInteger(id)&&id>=1&&id<=10).forEach(id=>badges.push(`big:${grade}:${id}`));
+    (record.miniBadges||[]).filter(id=>validMinis.has(id)).forEach(id=>badges.push(`mini:${grade}:${id}`));
+  });
+  return [...new Set(badges)];
 }
 function badgeName(id){const [kind,grade,code]=id.split(':');return kind==='big'?(adventureMeta(Number(code))?.unit||STAGES[Number(code)-1]?.unit||'대탐험')+' 대탐험':(miniCatalog.find(m=>m.id===code)?.title||'작은 탐험')+' 탐험';}
 function resetHideoutDraft(){roomDraft=null;roomDraftUuid=null;roomDirty=false;roomEditing=false;characterEditing=false;roomSelection='desk';}

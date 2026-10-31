@@ -1601,32 +1601,32 @@ function adventureDiagram(kind){
   if(!kind)return '';
   const line=(x1,y1,x2,y2,color='#4f46e5',dash='')=>`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${color}" stroke-width="3" ${dash?'stroke-dasharray="'+dash+'"':''}/>`;
   const text=(x,y,label)=>`<text x="${x}" y="${y}" fill="#334155" font-size="16" text-anchor="middle">${label}</text>`;
-  let svg='',label='問題の条件を示す図';
+  let svg='',label='문제의 조건을 나타내는 도형';
   if(['equal-segments','midpoints'].includes(kind)){
-    label=kind==='equal-segments'?'A B C Dの順に並ぶ三等分された線分':'A M N Bの順に並ぶ線分';
+    label=kind==='equal-segments'?'세 구간이 같은 선분 ABCD':'중점 M, N을 표시한 선분 AB';
     const points=kind==='equal-segments'?[[65,'A'],[195,'B'],[325,'C'],[455,'D']]:[[65,'A'],[260,'M'],[357.5,'N'],[455,'B']];
     svg=line(65,100,455,100)+points.map(([x,name])=>line(x,92,x,108)+text(x,135,name)).join('')+text(260,60,kind==='equal-segments'?'AD = 18 cm · AB = BC = CD':'AB = 24 cm · AM = MB · MN = NB');
   }else if(kind==='parallel-bend'){
-    label='平行な二直線の間の折れ線。上の角35度、下の角45度、中央の左側の角がx。';
+    label='평행한 두 직선 사이의 꺾인 선분과 35도, 45도, 미지각 x';
     svg=line(50,45,470,45,'#94a3b8')+line(50,215,470,215,'#94a3b8')+line(50,130,470,130,'#94a3b8','6 6')+line(138.6,45,260,130)+line(175,215,260,130)+text(190,68,'35°')+text(210,202,'45°')+text(222,138,'x')+text(433,36,'ℓ')+text(433,206,'m');
   }else if(kind==='hexagon'){
     label='정육각형 ABCDEF';const pts=[[190,43.8,'A'],[330,43.8,'B'],[400,165,'C'],[330,286.2,'D'],[190,286.2,'E'],[120,165,'F']];
     svg=`<polygon points="${pts.map(p=>p.slice(0,2).join(',')).join(' ')}" fill="#eef2ff" stroke="#4f46e5" stroke-width="3"/>`+pts.map(([x,y,n])=>text(x+(x<200?-16:16),y+(y<100?-10:22),n)).join('');
   }else if(['cuboid','cuboid-dimensions'].includes(kind)){
-    label='直方体。上面ABCD、下面EFGH。対応する縦の辺はAE BF CG DH。';
+    label='윗면 ABCD, 밑면 EFGH인 직육면체';
     const p={A:[110,75],B:[330,75],C:[410,30],D:[190,30],E:[110,240],F:[330,240],G:[410,195],H:[190,195]};
     svg=['AB','BC','CD','DA','AE','BF','CG','DH','EF','FG','GH','HE'].map(pair=>line(...p[pair[0]],...p[pair[1]],'#4f46e5',['DH','GH','HE'].includes(pair)?'6 5':'')).join('');
     if(kind==='cuboid')svg+=Object.entries(p).map(([n,[x,y]])=>text(x-12,y+(n==='E'||n==='F'?22:-10),n)).join('');
     else svg+=text(220,265,'3 cm')+text(390,237,'4 cm')+text(75,165,'5 cm');
   }else if(kind==='coordinate-triangle'){
-    label='A(0,4)、B(-3,0)、C(5,0)からなる三角形。';svg=line(55,220,475,220,'#94a3b8')+line(210,260,210,30,'#94a3b8')+`<polygon points="210,55 90,220 410,220" fill="#e0e7ff" stroke="#4f46e5" stroke-width="3"/>`+text(240,45,'A(0,4)')+text(85,248,'B(−3,0)')+text(430,248,'C(5,0)')+text(197,240,'O')+line(210,55,210,220,'#818cf8','5 5');
+    label='A(0,4), B(-3,0), C(5,0)을 꼭짓점으로 하는 삼각형';svg=line(55,220,475,220,'#94a3b8')+line(210,260,210,30,'#94a3b8')+`<polygon points="210,55 90,220 410,220" fill="#e0e7ff" stroke="#4f46e5" stroke-width="3"/>`+text(240,45,'A(0,4)')+text(85,248,'B(−3,0)')+text(430,248,'C(5,0)')+text(197,240,'O')+line(210,55,210,220,'#818cf8','5 5');
   }else if(kind==='inscribed-triangle'){
-    label='正三角形ABCの各辺上にAD=BE=CFとなるD E Fを置いた図。';
+    label='정삼각형 ABC 각 변 위에 AD=BE=CF가 되도록 점 D, E, F를 잡은 도형';
     svg=`<polygon points="260,25 120,267.5 400,267.5" fill="#f0fdf4" stroke="#047857" stroke-width="3"/><polygon points="213.3,105.8 213.3,267.5 353.3,186.7" fill="#d1fae5" stroke="#4f46e5" stroke-width="3"/>`+[[260,18,'A'],[105,290,'B'],[415,290,'C'],[195,100,'D'],[213,290,'E'],[375,185,'F']].map(p=>text(...p)).join('');
   }else if(kind==='isosceles'){
-    label='頂角30度、二つの底角が等しい二等辺三角形。';svg=`<polygon points="260,30 205,235.3 315,235.3" fill="#e0e7ff" stroke="#4f46e5" stroke-width="3"/>`+text(260,100,'30°')+text(225,220,'x')+text(295,220,'x');
+    label='꼭지각이 30도이고 두 밑각이 같은 이등변삼각형';svg=`<polygon points="260,30 205,235.3 315,235.3" fill="#e0e7ff" stroke="#4f46e5" stroke-width="3"/>`+text(260,100,'30°')+text(225,220,'x')+text(295,220,'x');
   }else if(kind==='sector'){
-    label='半径6cm、中心角60度の扇形。';svg=`<path d="M170 230 L370 230 A200 200 0 0 0 270 56.8 Z" fill="#fef3c7" stroke="#a16207" stroke-width="3"/>`+text(240,207,'60°')+text(290,255,'6 cm');
+    label='반지름 6cm, 중심각 60도인 부채꼴';svg=`<path d="M170 230 L370 230 A200 200 0 0 0 270 56.8 Z" fill="#fef3c7" stroke="#a16207" stroke-width="3"/>`+text(240,207,'60°')+text(290,255,'6 cm');
   }
   const koreanLabels={'equal-segments':'세 구간이 같은 선분 ABCD','midpoints':'중점 M, N을 표시한 선분 AB','parallel-bend':'평행선 사이의 꺾인 선분과 35°, 45°, 미지각 x','hexagon':'정육각형 ABCDEF','cuboid':'윗면 ABCD, 밑면 EFGH인 직육면체','cuboid-dimensions':'가로 3cm, 세로 4cm, 높이 5cm인 직육면체','coordinate-triangle':'좌표평면 위 삼각형 ABC','inscribed-triangle':'정삼각형 ABC 안의 삼각형 DEF','isosceles':'꼭지각 30도인 이등변삼각형','sector':'반지름 6cm, 중심각 60도인 부채꼴'};
   return svg?`<figure class="mt-5 rounded-2xl border border-slate-200 bg-slate-50 p-3"><svg role="img" aria-label="${koreanLabels[kind]}" viewBox="0 0 520 320" class="w-full max-w-xl mx-auto" style="max-height:280px">${svg}</svg><figcaption class="text-center text-xs text-slate-500">${koreanLabels[kind]} · 그림은 조건을 설명하기 위한 것이며 직접 재어 풀지 않아요.</figcaption></figure>`:'';
@@ -1704,8 +1704,13 @@ function badgeArt(id,size=72,locked=false){
   return `<svg aria-hidden="true" viewBox="0 0 100 102" width="${size}" height="${size}" class="shrink-0">${shape}${art}</svg>`;
 }
 function ownedBadges(student){
-  const record=student.gradeRecords?.[1]||{};
-  return [...new Set([...(record.clearedStages||[]).filter(id=>id>=1&&id<=10).map(id=>'big:1:'+id),...(record.miniBadges||[]).map(id=>'mini:1:'+id)])];
+  const badges=[],validMinis=new Set(miniCatalog.map(m=>m.id));
+  Object.entries(student.gradeRecords||{}).forEach(([grade,record])=>{
+    if(!['1','2','3'].includes(grade))return;
+    (record.clearedStages||[]).filter(id=>Number.isInteger(id)&&id>=1&&id<=10).forEach(id=>badges.push(`big:${grade}:${id}`));
+    (record.miniBadges||[]).filter(id=>validMinis.has(id)).forEach(id=>badges.push(`mini:${grade}:${id}`));
+  });
+  return [...new Set(badges)];
 }
 function badgeName(id){const [kind,grade,code]=id.split(':');return kind==='big'?(adventureMeta(Number(code))?.unit||STAGES[Number(code)-1]?.unit||'대탐험')+' 대탐험':(miniCatalog.find(m=>m.id===code)?.title||'작은 탐험')+' 탐험';}
 function resetHideoutDraft(){roomDraft=null;roomDraftUuid=null;roomDirty=false;roomEditing=false;characterEditing=false;roomSelection='desk';}

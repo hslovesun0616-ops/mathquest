@@ -47,5 +47,6 @@
 !/supabase/mathquest_schema.sql
 !/CLOUD_SETUP.md
 !/verify_cloud_live.py
+!/update_review_content.py
 .vercel
 .env*
