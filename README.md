@@ -30,6 +30,6 @@ Python 표준 라이브러리와 HTML/JavaScript로 구성한 학생·교사 학
 
 현재 UI 검증: `node verify_student_layout.cjs`, `node verify_mini_grades.cjs`, `node verify_adventure_map.cjs`, `node verify_research_analysis.cjs`, `node verify_passport_history.cjs`.
 
-운영 데이터베이스·제출물·비밀번호·세션·실행 로그·화면 캡처·백업은 Git에 포함하지 않습니다. 초기 seed의 학생은 개발용 예시입니다. GitHub 연결만으로 외부에서 앱이 실행되지는 않습니다. 실제 운영 서버 공개는 별도 배포 작업입니다.
+운영 데이터베이스·제출물·비밀번호·세션·실행 로그·화면 캡처·백업은 Git에 포함하지 않습니다. 초기 seed의 학생은 개발용 예시입니다. GitHub 소스와 별개로 Vercel + Supabase 운영 배포를 구성했습니다. 온라인 설정과 주소는 CLOUD_SETUP.md에 정리했습니다.
 
 상세 실행·연구 안내는 `MATH_QUEST_RUN.md`, 외부 AI용 사본은 `python package_math_quest_review.py`로 만듭니다.

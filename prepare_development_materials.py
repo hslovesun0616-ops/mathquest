@@ -27,7 +27,7 @@ for name in extras:
     for old,new in mapping.items():text=text.replace(old,new)
     (src/name).write_text(text,encoding='utf-8')
 shutil.copy2(root/'math_quest_adventures.json',questions/'방탈출_10탄_100문항.json')
-for name in ['student-final-preview.png','teacher-final-preview.png']:
+for name in ['student-final-preview.png','teacher-final-preview.png','online-deployment-preview.png']:
     if (root/name).exists():shutil.copy2(root/name,pictures/name)
 (target/'00_먼저읽기.md').write_text('''# AI 검토용 개발자료
 
@@ -44,7 +44,7 @@ for name in ['student-final-preview.png','teacher-final-preview.png']:
 실행: 01_전체소스 폴더에서 `python math_quest_server.py --port 8877 --data-dir review_data` 또는 `검토용_실행.cmd`를 실행하세요. 학생은 10101 / 검토학생1로 로그인합니다. 교사 비밀번호는 검토자가 처음에 직접 설정합니다. Python 표준 라이브러리를 사용하며 UI 스타일과 아이콘에는 인터넷 CDN 연결이 필요합니다.
 
 학생: http://127.0.0.1:8877/?view=student / 교사: http://127.0.0.1:8877/?view=teacher
-위 주소는 이 사본을 실행한 컴퓨터에서만 열립니다. 외부 AI가 주소만으로 접속할 수는 없습니다. GitHub 연결도 앱의 인터넷 배포와는 다릅니다.
+실제 온라인 주소는 https://mathquest-six-ashen.vercel.app 입니다. 검토용 위 localhost 주소는 이 사본을 실행한 컴퓨터에서만 열립니다. 외부 AI가 주소만으로 접속할 수는 없습니다. GitHub 연결도 앱의 인터넷 배포와는 다릅니다.
 ''',encoding='utf-8')
 (docs/'AI_검토요청서.md').write_text('''# 검토 요청
 

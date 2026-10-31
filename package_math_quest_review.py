@@ -49,7 +49,7 @@ Python 3에서 `python math_quest_server.py --port 8877 --data-dir review_data`�
 
 ## 주소의 범위
 
-127.0.0.1은 실행한 컴퓨터에서만 열립니다. 외부 AI에게는 이 ZIP이나 소스·CSV를 첨부해야 합니다. 실제 운영 앱을 외부에서 쓰려면 별도 인증·HTTPS·서버 배포가 필요합니다. 이 검토용 사본은 공개 서버로 배포된 버전이 아닙니다.
+127.0.0.1은 실행한 컴퓨터에서만 열립니다. 외부 AI에게는 이 ZIP이나 소스·CSV를 첨부해야 합니다. 실제 운영 앱을 외부에서 쓰려면 별도 인증·HTTPS·서버 배포가 필요합니다. 온라인 운영 주소는 CLOUD_SETUP.md에 있습니다. 이 검토용 사본은 온라인 원자료와 분리한 가상 데이터로 실행합니다.
 ''',encoding='utf-8')
 archive=root/'MathQuest_수정보완_검토용.zip'
 with zipfile.ZipFile(archive,'w',zipfile.ZIP_DEFLATED) as z:
