@@ -141,7 +141,7 @@ class Handler(BaseHTTPRequestHandler):
                 import re
                 html = self.server.html.read_text(encoding='utf-8')
                 # Student profiles and teacher research are served only after authentication.
-                html = re.sub(r'    let students = \[.*?\n    \];', '    let students = [];', html, count=1, flags=re.S)
+                html = re.sub(r'    let students = \[\s*\n.*?\n    \];', '    let students = [];', html, count=1, flags=re.S)
                 payload = html.encode('utf-8')
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/html; charset=utf-8')

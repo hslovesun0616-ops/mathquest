@@ -2,6 +2,8 @@
 
 Python 표준 라이브러리와 HTML/JavaScript로 구성한 학생·교사 학습 관리 앱입니다.
 
+공개 소스: https://github.com/hslovesun0616-ops/mathquest
+
 ## 실행
 
 `python math_quest_server.py --port 8765`

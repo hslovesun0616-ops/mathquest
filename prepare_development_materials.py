@@ -1,6 +1,6 @@
 """Assemble a complete, private-data-free desktop handoff directory."""
 from pathlib import Path
-import csv,hashlib,json,shutil,subprocess,sys,zipfile
+import csv,hashlib,json,os,shutil,subprocess,sys,zipfile
 
 root=Path(__file__).resolve().parent
 subprocess.run([sys.executable,str(root/'package_math_quest_review.py')],cwd=root,check=True)
@@ -10,6 +10,10 @@ src=target/'01_전체소스';src.mkdir(exist_ok=True)
 questions=target/'02_문항자료';questions.mkdir(exist_ok=True)
 docs=target/'03_설계와검증';docs.mkdir(exist_ok=True)
 pictures=target/'04_화면미리보기';pictures.mkdir(exist_ok=True)
+for cache in src.rglob('__pycache__'):
+    if not cache.resolve().is_relative_to(target.resolve()):raise RuntimeError('Unexpected cache location')
+    for file in cache.glob('*.pyc'):file.unlink()
+    if not any(cache.iterdir()):cache.rmdir()
 seed=json.loads((root/'math_quest_seed.json').read_text(encoding='utf-8'))
 mapping={student['name']:f'검토학생{i}' for i,student in enumerate(seed['students'],1)}
 for file in (root/'math_quest_review').iterdir():
@@ -92,10 +96,18 @@ Python ThreadingHTTPServer + SQLite, HTML/JavaScript입니다. 별도 DB 서버�
 commands=[['python','-m','unittest','test_math_quest_complete','test_math_quest_hideout','test_math_quest_adventure','test_math_quest_research','test_math_quest_server']]+[['node',name] for name in ['verify_student_layout.cjs','verify_mini_grades.cjs','verify_adventure_map.cjs','verify_research_analysis.cjs','verify_passport_history.cjs']]
 results=[]
 for command in commands:
-    run=subprocess.run(command,cwd=src,capture_output=True,text=True,encoding='utf-8',errors='replace')
+    run=subprocess.run(command,cwd=src,capture_output=True,text=True,encoding='utf-8',errors='replace',env={**os.environ,'PYTHONDONTWRITEBYTECODE':'1'})
     results.append('$ '+' '.join(command)+'\n'+run.stdout+run.stderr+f'\nexit={run.returncode}\n')
     if run.returncode:raise RuntimeError('Review-copy check failed: '+' '.join(command)+'\n'+run.stdout+run.stderr)
 (docs/'검증결과.txt').write_text('\n'.join(results),encoding='utf-8')
+(docs/'GitHub_저장소.md').write_text('''# 공개 소스 저장소
+
+https://github.com/hslovesun0616-ops/mathquest
+
+사용자가 공개 업로드를 승인한 소스입니다. 운영 DB·제출물·설문 응답·비밀번호·로그인 세션은 포함하지 않습니다. seed·HTML·테스트의 학생 이름과 ID는 가상 개발 데이터로 정리했습니다. 이 폴더에는 AI 검토에 바로 쓸 수 있도록 실행용 소스, 문항 CSV/JSON, 테스트, 설계 문서와 화면 예시를 함께 제공합니다.
+
+GitHub 주소는 소스를 보는 주소입니다. Python·SQLite 서버가 자동 배포된 앱 실행 주소는 아닙니다.
+''',encoding='utf-8')
 manifest=target/'파일목록_SHA256.csv'
 files=sorted(p for p in target.rglob('*') if p.is_file() and p.name!='AI검토용_전체개발자료.zip' and p!=manifest)
 with manifest.open('w',encoding='utf-8-sig',newline='') as f:

@@ -45,6 +45,9 @@ class ServerTests(unittest.TestCase):
         public = self.request(self.student,'/')[1].decode()
         self.assertNotIn("name: '검토학생1'", public)
         self.assertNotIn('첨부 파일명 기록', public)
+        # An already-empty seed must not consume subsequent functions/arrays.
+        self.assertIn('function achievement(record, grade)',public)
+        self.assertIn('function showGradeSelection()',public)
         self.assertEqual(self.request(self.teacher,'/api/teacher/setup',{'password':'temporary-test-password'})[0],200)
         self.assertEqual(self.request(self.other,'/api/teacher/setup',{'password':'temporary-test-password'})[0],409)
         self.assertEqual(self.request(self.student,'/api/student/login',{'studentId':'10101','name':'검토학생1'})[0],200)
