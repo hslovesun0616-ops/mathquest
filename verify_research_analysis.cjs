@@ -1,0 +1,16 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const elements=new Map(['researchStudentSelect','researchIndividualResults','researchClassResults','researchBehaviorResults','researchBehaviorSnapshots','researchObservationList'].map(key=>[key,{value:key==='researchStudentSelect'?'a':'',innerHTML:''}]));
+const ctx=vm.createContext({document:{getElementById:key=>elements.get(key)},students:[{uuid:'a',gradeRecords:{1:{submissions:[]}}}],assignments:[],taskSubmission:()=>null,escapeHtml:x=>String(x??'')});
+vm.runInContext(fs.readFileSync('math_quest_research.js','utf8'),ctx);
+const instrument={id:'i1',title:'Test',version:'v1',kind:'selfEfficacy',min:1,max:5,items:[{dimension:'efficacy'}]};
+const responses=[{studentUuid:'a',waveId:'w1',instrumentId:'i1',status:'completed',scores:{efficacy:4}},{studentUuid:'b',waveId:'w1',instrumentId:'i1',status:'completed',scores:{efficacy:2}},{studentUuid:'a',waveId:'w2',instrumentId:'i1',status:'completed',scores:{efficacy:3}}];
+const state={instruments:[instrument,{...instrument,id:'i2',version:'v2'}],waves:[{id:'w1',date:'2026-03-01',label:'T1',instrumentIds:['i1'],participantIds:['a','b']},{id:'w2',date:'2026-07-01',label:'T2',instrumentIds:['i1'],participantIds:['a','b']}],responses,observations:[]};
+vm.runInContext('researchState='+JSON.stringify(state)+';renderResearchAnalysis()',ctx);
+assert(elements.get('researchClassResults').innerHTML.includes('-1.00 (1명)'), 'Paired change must use the same student, not differences between group means');
+assert(elements.get('researchClassResults').innerHTML.includes('1/2명'));
+assert.equal(vm.runInContext("researchSeries('a').length",ctx),2,'Different instrument versions remain separate');
+const series={instrument,dimension:'efficacy',points:[{value:4},{value:null},{value:3}]};
+const svg=vm.runInContext('researchChart('+JSON.stringify(series)+')',ctx);
+assert.equal((svg.match(/<line /g)||[]).length,1,'Only axis: missing measurement must break the line');
+assert.equal((svg.match(/<circle /g)||[]).length,2);
+console.log('PASS: paired changes, response denominators, separate instrument versions, graph gaps');

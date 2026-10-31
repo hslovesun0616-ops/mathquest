@@ -1,0 +1,294 @@
+{
+  "gradeHistoryVersion": 1,
+  "reviewWorkflowVersion": 1,
+  "students": [
+    {
+      "uuid": "DEMO-STUDENT-001",
+      "studentId": "10101",
+      "name": "검토학생1",
+      "grade": 1,
+      "classNum": "1-1",
+      "teacher": "검토용 교사",
+      "history": "가상 개발용 학생. 실제 학생 기록이 아닙니다.",
+      "clearedStages": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "preScore": null,
+      "postScore": null,
+      "selfEfficacy": null,
+      "submissions": [
+        {
+          "stageId": 1,
+          "type": "수학 글짓기",
+          "fileName": "example.txt",
+          "content": "가상 제출 예시",
+          "date": "2026-01-01",
+          "teacherFeedback": ""
+        }
+      ],
+      "qualitativeNotes": "",
+      "gradeRecords": {
+        "1": {
+          "grade": 1,
+          "studentId": "10101",
+          "classNum": "1-1",
+          "clearedStages": [
+            1,
+            2,
+            3,
+            4
+          ],
+          "submissions": [
+            {
+              "stageId": 1,
+              "type": "수학 글짓기",
+              "fileName": "example.txt",
+              "content": "가상 제출 예시",
+              "date": "2026-01-01",
+              "teacherFeedback": ""
+            }
+          ],
+          "preScore": null,
+          "postScore": null,
+          "selfEfficacy": null,
+          "qualitativeNotes": ""
+        }
+      }
+    },
+    {
+      "uuid": "DEMO-STUDENT-002",
+      "studentId": "10102",
+      "name": "검토학생2",
+      "grade": 1,
+      "classNum": "1-1",
+      "teacher": "검토용 교사",
+      "history": "가상 개발용 학생. 실제 학생 기록이 아닙니다.",
+      "clearedStages": [
+        1,
+        2
+      ],
+      "preScore": null,
+      "postScore": null,
+      "selfEfficacy": null,
+      "submissions": [
+        {
+          "stageId": 1,
+          "type": "학습지 제출",
+          "fileName": "example.txt",
+          "content": "가상 제출 예시",
+          "date": "2026-01-01",
+          "teacherFeedback": ""
+        }
+      ],
+      "qualitativeNotes": "",
+      "gradeRecords": {
+        "1": {
+          "grade": 1,
+          "studentId": "10102",
+          "classNum": "1-1",
+          "clearedStages": [
+            1,
+            2
+          ],
+          "submissions": [
+            {
+              "stageId": 1,
+              "type": "학습지 제출",
+              "fileName": "example.txt",
+              "content": "가상 제출 예시",
+              "date": "2026-01-01",
+              "teacherFeedback": ""
+            }
+          ],
+          "preScore": null,
+          "postScore": null,
+          "selfEfficacy": null,
+          "qualitativeNotes": ""
+        }
+      }
+    },
+    {
+      "uuid": "DEMO-STUDENT-003",
+      "studentId": "10103",
+      "name": "검토학생3",
+      "grade": 1,
+      "classNum": "1-1",
+      "teacher": "검토용 교사",
+      "history": "가상 개발용 학생. 실제 학생 기록이 아닙니다.",
+      "clearedStages": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "preScore": null,
+      "postScore": null,
+      "selfEfficacy": null,
+      "submissions": [],
+      "qualitativeNotes": "",
+      "gradeRecords": {
+        "1": {
+          "grade": 1,
+          "studentId": "10103",
+          "classNum": "1-1",
+          "clearedStages": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6
+          ],
+          "submissions": [],
+          "preScore": null,
+          "postScore": null,
+          "selfEfficacy": null,
+          "qualitativeNotes": ""
+        }
+      }
+    },
+    {
+      "uuid": "DEMO-STUDENT-004",
+      "studentId": "10104",
+      "name": "검토학생4",
+      "grade": 1,
+      "classNum": "1-1",
+      "teacher": "검토용 교사",
+      "history": "가상 개발용 학생. 실제 학생 기록이 아닙니다.",
+      "clearedStages": [
+        1
+      ],
+      "preScore": null,
+      "postScore": null,
+      "selfEfficacy": null,
+      "submissions": [],
+      "qualitativeNotes": "",
+      "gradeRecords": {
+        "1": {
+          "grade": 1,
+          "studentId": "10104",
+          "classNum": "1-1",
+          "clearedStages": [
+            1
+          ],
+          "submissions": [],
+          "preScore": null,
+          "postScore": null,
+          "selfEfficacy": null,
+          "qualitativeNotes": ""
+        }
+      }
+    },
+    {
+      "uuid": "DEMO-STUDENT-005",
+      "studentId": "20115",
+      "name": "검토학생5",
+      "grade": 2,
+      "classNum": "2-1",
+      "teacher": "검토용 교사",
+      "history": "가상 개발용 학생. 실제 학생 기록이 아닙니다.",
+      "clearedStages": [],
+      "preScore": null,
+      "postScore": null,
+      "selfEfficacy": null,
+      "submissions": [],
+      "qualitativeNotes": "",
+      "gradeRecords": {
+        "1": {
+          "grade": 1,
+          "studentId": "",
+          "classNum": "",
+          "clearedStages": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ],
+          "submissions": [],
+          "preScore": null,
+          "postScore": null,
+          "selfEfficacy": null,
+          "qualitativeNotes": ""
+        },
+        "2": {
+          "grade": 2,
+          "studentId": "20115",
+          "classNum": "2-1",
+          "clearedStages": [],
+          "submissions": [],
+          "preScore": null,
+          "postScore": null,
+          "selfEfficacy": null,
+          "qualitativeNotes": ""
+        }
+      }
+    }
+  ],
+  "assignments": [
+    {
+      "id": "stage-1",
+      "grade": 1,
+      "stageId": 1,
+      "title": "1. 소인수분해 활동 과제",
+      "guide": "나만의 소인수분해 암호 문제를 1개 만들고 풀이 과정을 사진이나 글로 남겨보세요!",
+      "worksheet": "",
+      "url": "",
+      "type": ""
+    }
+  ],
+  "assignmentArchive": [],
+  "links": [
+    {
+      "id": 1,
+      "url": "https://tally.so/r/xVrXkG"
+    },
+    {
+      "id": 2,
+      "url": "https://tally.so/r/EkGLjA"
+    },
+    {
+      "id": 3,
+      "url": "https://tally.so/r/EkGLjA"
+    },
+    {
+      "id": 4,
+      "url": "https://tally.so/r/EkGLjA"
+    },
+    {
+      "id": 5,
+      "url": "https://tally.so/r/EkGLjA"
+    },
+    {
+      "id": 6,
+      "url": "https://tally.so/r/EkGLjA"
+    },
+    {
+      "id": 7,
+      "url": "https://tally.so/r/EkGLjA"
+    },
+    {
+      "id": 8,
+      "url": "https://tally.so/r/EkGLjA"
+    },
+    {
+      "id": 9,
+      "url": "https://tally.so/r/EkGLjA"
+    },
+    {
+      "id": 10,
+      "url": "https://tally.so/r/EkGLjA"
+    }
+  ],
+  "demoDataOnly": true
+}

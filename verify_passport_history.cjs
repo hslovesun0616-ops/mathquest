@@ -1,0 +1,14 @@
+const fs=require('fs'),vm=require('vm'),assert=require('assert/strict');
+const elements=new Map();
+const el=id=>{if(!elements.has(id))elements.set(id,{hidden:false,innerHTML:''});return elements.get(id);};
+const student={grade:2,gradeRecords:{1:{clearedStages:[1,2],miniBadges:['1-1'],submissions:[]},2:{clearedStages:[],miniBadges:[],submissions:[]}}};
+const context={students:[student],currentStudentIndex:0,selectedLearningGrade:1,document:{getElementById:el},selectedMiniCatalog:()=>[{}],selectedStages:()=>[{}],achievement:()=>({total:1,approved:0,percent:0})};
+for(const name of ['renderStudentResearch','characterArt','renderCharacterPanel','renderMyHideout','furnitureArt','renderTeacherManagement','renderTeacherResearchPanel','renderResearchAnalysis'])context[name]=()=>{};
+context.selectedRecord=()=>student.gradeRecords[context.selectedLearningGrade];
+vm.createContext(context);vm.runInContext(fs.readFileSync('math_quest_finish.js','utf8'),context);
+vm.runInContext('renderGrowthPassport()',context);
+assert(el('passportPreviousGrades').hidden);assert.equal(el('passportHistory').innerHTML,'');
+context.selectedLearningGrade=2;vm.runInContext('renderGrowthPassport()',context);
+assert(!el('passportPreviousGrades').hidden);assert(el('passportHistory').innerHTML.includes('중1'));assert(!el('passportHistory').innerHTML.includes('중2'));
+assert(el('passportMetrics').innerHTML.includes('방탈출 완성'));
+console.log('PASS: current grade appears only in summary; expansion contains earlier grades only; hidden without earlier records.');
